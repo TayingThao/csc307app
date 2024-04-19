@@ -35,6 +35,8 @@ const users = {
 };
 
 const addUser = (user) => {
+  const userId = generateRandomId();
+  user.id = userId;
   users["users_list"].push(user);
   return user;
 };
@@ -51,6 +53,21 @@ const findUserByJob = (job) => {
 
 const findUserById = (id) =>
   users["users_list"].find((user) => user["id"] === id);
+
+const generateRandomId = () => {
+    const characters = 'abcdefghijklmnopqrstuvwxyz';
+    const numbers = '0123456789';
+    let randomId = '';
+    for (let i = 0; i < 3; i++) {
+        randomId += characters.charAt(Math.floor(Math.random() * 
+            characters.length));
+    }
+    for (let i = 0; i < 3; i++) {
+        randomId += numbers.charAt(Math.floor(Math.random() *
+            numbers.length));
+    }
+    return randomId;
+};
 
 app.use(cors());
 app.use(express.json());
@@ -84,7 +101,7 @@ app.get("/users/:id", (req, res) => {
   if (result === undefined) {
     res.status(404).send("Resource not found.");
   } else {
-    res.send(result);
+    res.status(200).send(result);
   }
 });
 
@@ -93,6 +110,7 @@ app.delete("/users/:id", (req, res) => {
     const index = users["users_list"].findIndex(user => user.id === id);
     if (index !== -1) {
         users["users_list"].splice(index, 1);
+        res.status(204).send()
     } else {
         res.status(404).send("Resource not found.");
     }
@@ -101,7 +119,7 @@ app.delete("/users/:id", (req, res) => {
 app.post("/users", (req, res) => {
   const userToAdd = req.body;
   addUser(userToAdd);
-  res.send();
+  res.status(201).send();
 });
 
 app.listen(port, () => {

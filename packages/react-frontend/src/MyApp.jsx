@@ -6,14 +6,24 @@ function MyApp() {
     const [characters, setCharacters] = useState([]);
 
     function removeOneCharacter(index) {
-        const updated = characters.filter((character, i) => {
-            return i !== index;
+        const id = characters[index].id;
+        fetch(`http://localhost:8000/users/${id}`, {
+            method: "DELETE"
+        })
+        .then((response) => {
+            if (response.status === 204) {
+                const updated = characters.filter((character, i) =>
+                    i !== index);
+                setCharacters(updated);
+            } else if (response.status === 404) {
+                console.log("User not found");
+            } else {
+                console.log("Unexpected response status:", response.status)
+            }
+        })
+        .catch((error) => {
+            console.error("Error deleting user:", error);
         });
-        setCharacters(updated);
-    }
-
-    function updateList(person) {
-        setCharacters([...characters, person]);
     }
 
     function fetchUsers() {
@@ -52,7 +62,7 @@ function MyApp() {
         <div className="container">
             <Table
                 characterData={characters} 
-            removeCharacter={removeOneCharacter}
+                removeCharacter={removeOneCharacter}
             />
             <Form handleSubmit={updateList} />
         </div>
