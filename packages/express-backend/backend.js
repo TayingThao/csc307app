@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 
 const app = express();
 const port = 8000;
@@ -51,6 +52,7 @@ const findUserByJob = (job) => {
 const findUserById = (id) =>
   users["users_list"].find((user) => user["id"] === id);
 
+app.use(cors());
 app.use(express.json());
 
 app.get("/", (req, res) => {
@@ -58,16 +60,21 @@ app.get("/", (req, res) => {
 });
 
 app.get("/users", (req, res) => {
-    const { name, job } = req.query;
-    let filteredUsers = users["users_list"];
-    if (name && job) {
-        filteredUsers = filteredUsers.filter((user) => user["name"] === name && user["job"] === job);
-    } else if (name) {
-        filteredUsers = findUserByName(name);
-    } else if (job) {
-        filteredUsers = findUserByJob(job);
+    const name = req.query.name;
+    const job = req.query.job;
+    if ((name != undefined) && (job != undefined)) {
+        let result = users["users_list"].filter(
+            (user) => user["name"] === name && user["job"] === job);
+        res.send(result);
+    } else if (name != undefined) {
+        let result = findUserByName(name);
+        res.send(result);
+    } else if (job != undefined) {
+        result  = findUserByJob(job);
+        res.send(result);
+    } else {
+        res.send(users);
     }
-    res.send(filteredUsers);
 });
 
 
