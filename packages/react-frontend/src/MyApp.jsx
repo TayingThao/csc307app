@@ -6,7 +6,7 @@ function MyApp() {
     const [characters, setCharacters] = useState([]);
 
     function removeOneCharacter(index) {
-        const id = characters[index].id;
+        const id = characters[index]._id;
         fetch(`http://localhost:8000/users/${id}`, {
             method: "DELETE"
         })
@@ -45,16 +45,19 @@ function MyApp() {
 
     function updateList(person) {
         postUser(person)
-            .then(() => setCharacters([...characters, person]))
-            .catch((error) => {
-                console.log(error);
-            })
+            .then(response => response.json())
+            .then(newUser => {
+            setCharacters(prevCharacters => [...prevCharacters, newUser]);
+        })
+        .catch((error) => {
+            console.log(error);
+        });
     }
 
     useEffect(() => {
         fetchUsers()
             .then((res) => res.json())
-            .then((json) => setCharacters(json["users_list"]))
+            .then((json) => setCharacters(json))
             .catch((error) => { console.log(error); });
     }, [] );
 
